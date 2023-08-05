@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT + Gmail Extension Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 15px;
+            width: 300px;
+        }
+        .status {
+            color: green;
+        }
+        h2, p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Extension Status:</h2>
+    <p id="extensionStatus" class="status">Active</p>
+    
+    <h2>Last Email Processed:</h2>
+    <p id="lastEmail">None yet</p>
+
+    <h2>Last GPT Response:</h2>
+    <p id="lastResponse">None yet</p>
+
+    <script src="popup.js">
+        // Here you can add event listeners or chrome.runtime API calls 
+        // to fetch the current status and update the above elements.
+        // For instance, if you have a background script that keeps track 
+        // of the last email processed or last GPT response, you can fetch 
+        // that info and update the DOM accordingly.
+        
+        // Sample code (you'd replace this with actual logic):
+        // chrome.runtime.sendMessage({type: "getStatus"}, function(response) {
+        //     document.getElementById('lastEmail').textContent = response.lastEmail;
+        //     document.getElementById('lastResponse').textContent = response.lastResponse;
+        // });
+    </script>
+
+</body>
+
+</html>
+    
