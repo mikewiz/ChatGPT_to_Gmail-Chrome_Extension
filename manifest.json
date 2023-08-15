@@ -9,11 +9,18 @@
     },
     "content_scripts": [
         {
-            "matches": ["https://mail.google.com/*"],
+            "matches": [
+                "https://mail.google.com/*",
+                "https://api.openai.com/*"
+            ],
+            
             "js": ["gmail-script.js"]
         },
         {
-            "matches": ["https://chat.openai.com/*"],
+            "matches": [
+                "https://api.openai.com/*",
+                "https://chat.openai.com/*"
+            ],
             "js": ["gpt-script.js"]
         }
     ],
@@ -22,6 +29,7 @@
     },
     "host_permissions": [
         "https://mail.google.com/*",
+        "https://api.openai.com/*",
         "https://chat.openai.com/*"
     ]
 }

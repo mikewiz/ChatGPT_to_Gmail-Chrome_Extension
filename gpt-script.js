@@ -15,7 +15,7 @@ chrome.runtime.onMessage.addListener(function (
 
   // Define the API request
   let url = "https://api.openai.com/v1/chat/completions";
-  let apiKey = "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";
+  let apiKey = "sk-"; //"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";
   let headers = {
     Authorization: `Bearer ${apiKey}`,
     "Content-Type": "application/json",
