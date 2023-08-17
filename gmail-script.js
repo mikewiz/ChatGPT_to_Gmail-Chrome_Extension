@@ -17,9 +17,6 @@ window.onload = function () {
             console.log("Email content: ", emailContent);
             (async function () {
               console.log("Sending message to GPT service.");
-              //   const gptResponse = await chrome.runtime.sendMessage(
-              //     emailContent
-              //   );
 
               // Format the email content for GPT's understanding
               const formattedEmailContent =
@@ -31,43 +28,47 @@ window.onload = function () {
               let url = "https://api.openai.com/v1/chat/completions";
               let apiKey;
 
-              // Retrieve the API key from Chrome storage
+              // Retrieve the API key from Chrome storage and then make the API request
               chrome.storage.sync.get(["apiKey"], function (result) {
                 apiKey = result.apiKey;
-                // Rest of your code that uses the apiKey
-              });
-              let headers = {
-                Authorization: `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-              };
+                if (!apiKey) {
+                  console.error("API key not found in Chrome storage.");
+                  return;
+                }
 
-              let data = {
-                model: "gpt-3.5-turbo",
-                messages: [{ role: "user", content: formattedEmailContent }],
-                max_tokens: 250,
-              };
+                let headers = {
+                  Authorization: `Bearer ${apiKey}`,
+                  "Content-Type": "application/json",
+                };
 
-              // Make the API request
-              fetch(url, {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify(data),
-              })
-                .then((response) => response.json())
-                .then((data) => {
-                  console.log("GPT response:", data.choices[0].message.content);
-                  gptResponse = data.choices[0].message.content;
-                  const gmailTextbox = document.querySelector("[role=textbox]");
-                  gmailTextbox.innerText = gptResponse;
-                  console.log("Gmail response textbox filled.");
+                let data = {
+                  model: "gpt-3.5-turbo",
+                  messages: [{ role: "user", content: formattedEmailContent }],
+                  max_tokens: 250,
+                };
 
-                  // Send back the GPT response
-                  //   sendResponse(data.choices[0].message.content);
+                // Make the API request
+                fetch(url, {
+                  method: "POST",
+                  headers: headers,
+                  body: JSON.stringify(data),
                 })
-                .catch((error) => {
-                  console.error("Error:", error);
-                  //   sendResponse(null);
-                });
+                  .then((response) => response.json())
+                  .then((data) => {
+                    console.log(
+                      "GPT response:",
+                      data.choices[0].message.content
+                    );
+                    gptResponse = data.choices[0].message.content;
+                    const gmailTextbox =
+                      document.querySelector("[role=textbox]");
+                    gmailTextbox.innerText = gptResponse;
+                    console.log("Gmail response textbox filled.");
+                  })
+                  .catch((error) => {
+                    console.error("Error:", error);
+                  });
+              });
             })();
           });
         }
