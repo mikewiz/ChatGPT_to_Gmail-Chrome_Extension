@@ -45,8 +45,18 @@ chrome.runtime.onMessage.addListener(function (
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("GPT response:", data.choices[0].message.content);
-        sendResponse(data.choices[0].message.content); // Send back the GPT response
+        if (
+          data &&
+          data.choices &&
+          data.choices.length > 0 &&
+          data.choices[0].message
+        ) {
+          console.log("GPT response:", data.choices[0].message.content);
+          sendResponse(data.choices[0].message.content); // Send back the GPT response
+        } else {
+          console.error("Unexpected GPT response format:", data);
+          sendResponse(null); // Send a null response if the format is unexpected
+        }
       })
       .catch((error) => {
         console.error("Error:", error);

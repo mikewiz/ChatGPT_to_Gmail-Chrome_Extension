@@ -55,15 +55,24 @@ window.onload = function () {
                 })
                   .then((response) => response.json())
                   .then((data) => {
-                    console.log(
-                      "GPT response:",
-                      data.choices[0].message.content
-                    );
-                    gptResponse = data.choices[0].message.content;
-                    const gmailTextbox =
-                      document.querySelector("[role=textbox]");
-                    gmailTextbox.innerText = gptResponse;
-                    console.log("Gmail response textbox filled.");
+                    if (
+                      data &&
+                      data.choices &&
+                      data.choices.length > 0 &&
+                      data.choices[0].message
+                    ) {
+                      console.log(
+                        "GPT response:",
+                        data.choices[0].message.content
+                      );
+                      gptResponse = data.choices[0].message.content;
+                      const gmailTextbox =
+                        document.querySelector("[role=textbox]");
+                      gmailTextbox.innerText = gptResponse;
+                      console.log("Gmail response textbox filled.");
+                    } else {
+                      console.error("Unexpected GPT response format:", data);
+                    }
                   })
                   .catch((error) => {
                     console.error("Error:", error);
