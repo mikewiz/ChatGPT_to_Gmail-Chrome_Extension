@@ -1,35 +1,30 @@
 {
-    "name": "ChatGPT + GMail",
-    "version": "1.0.0",
-    "description": "This is a Google Chrome Extension to connect Gmail with ChatGPT",
-    "manifest_version": 3,
-    "author": "Michael Flint",
-    "action": {
-        "default_popup": "index.html"
+  "name": "ChatGPT + GMail",
+  "version": "1.0.0",
+  "description": "This is a Google Chrome Extension to connect Gmail with ChatGPT",
+  "manifest_version": 3,
+  "author": "Michael Flint",
+  "options_page": "options.html",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*", "https://api.openai.com/*"],
+      "js": ["gmail-script.js"]
     },
-    "content_scripts": [
-        {
-            "matches": [
-                "https://mail.google.com/*",
-                "https://api.openai.com/*"
-            ],
-            
-            "js": ["gmail-script.js"]
-        },
-        {
-            "matches": [
-                "https://api.openai.com/*",
-                "https://chat.openai.com/*"
-            ],
-            "js": ["gpt-script.js"]
-        }
-    ],
-    "background": {
-        "service_worker": "background.js"
-    },
-    "host_permissions": [
-        "https://mail.google.com/*",
-        "https://api.openai.com/*",
-        "https://chat.openai.com/*"
-    ]
+    {
+      "matches": ["https://api.openai.com/*", "https://chat.openai.com/*"],
+      "js": ["gpt-script.js"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage", "notifications"],
+  "host_permissions": [
+    "https://mail.google.com/*",
+    "https://api.openai.com/*",
+    "https://chat.openai.com/*"
+  ]
 }
