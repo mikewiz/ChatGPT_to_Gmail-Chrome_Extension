@@ -65,11 +65,19 @@ window.onload = function () {
                         "GPT response:",
                         data.choices[0].message.content
                       );
-                      gptResponse = data.choices[0].message.content;
+                      const gptResponse = data.choices[0].message.content;
                       const gmailTextbox =
                         document.querySelector("[role=textbox]");
                       gmailTextbox.innerText = gptResponse;
                       console.log("Gmail response textbox filled.");
+
+                      // Send a message to the background script with the status update
+                      chrome.runtime.sendMessage({
+                        type: "updateStatus",
+                        extensionStatus: "Active",
+                        lastEmail: emailContent,
+                        lastResponse: gptResponse,
+                      });
                     } else {
                       console.error("Unexpected GPT response format:", data);
                     }

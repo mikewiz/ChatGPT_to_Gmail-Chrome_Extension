@@ -6,7 +6,7 @@ chrome.storage.sync.get(["apiKey"], function (result) {
     // Notify the user to set the API key if it's not set
     chrome.notifications.create({
       type: "basic",
-      iconUrl: "icon.png", // Replace with your extension's icon
+      iconUrl: "icons/1/icon16.png", // Updated path to your extension's icon
       title: "Setup Required",
       message: "Please set your OpenAI API key via the extension options.",
     });
@@ -16,6 +16,29 @@ chrome.storage.sync.get(["apiKey"], function (result) {
   }
 });
 
+// Store the latest status update
+let extensionStatus = {
+  extensionStatus: "Active",
+  lastEmail: "None yet",
+  lastResponse: "None yet",
+};
+
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.type === "updateStatus") {
+    // Update the stored status with the new information
+    extensionStatus = {
+      extensionStatus: message.extensionStatus,
+      lastEmail: message.lastEmail,
+      lastResponse: message.lastResponse,
+    };
+    console.log("Status updated:", extensionStatus);
+  } else if (message.type === "getStatus") {
+    // Send the stored status to the popup script
+    sendResponse(extensionStatus);
+  }
+});
+
+// Existing code for forwarding email content
 chrome.runtime.onMessage.addListener(function (
   emailContent,
   sender,
