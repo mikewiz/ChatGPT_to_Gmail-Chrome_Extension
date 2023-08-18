@@ -1,3 +1,4 @@
+// Log a message to indicate the background script has started
 console.log("Background script initiated.");
 
 // Check if the API key is set in Chrome's storage
@@ -6,11 +7,10 @@ chrome.storage.sync.get(["apiKey"], function (result) {
     // Notify the user to set the API key if it's not set
     chrome.notifications.create({
       type: "basic",
-      iconUrl: "icons/1/icon16.png", // Updated path to your extension's icon
+      iconUrl: "icons/1/icon16.png", // Path to your extension's icon
       title: "Setup Required",
       message: "Please set your OpenAI API key via the extension options.",
     });
-
     // Optionally, open the options page for the user
     chrome.runtime.openOptionsPage();
   }
@@ -23,6 +23,7 @@ let extensionStatus = {
   lastResponse: "None yet",
 };
 
+// Listener for messages from content or popup scripts
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.type === "updateStatus") {
     // Update the stored status with the new information
@@ -31,45 +32,31 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       lastEmail: message.lastEmail,
       lastResponse: message.lastResponse,
     };
-    console.log("Status updated:", extensionStatus);
   } else if (message.type === "getStatus") {
     // Send the stored status to the popup script
     sendResponse(extensionStatus);
   }
 });
 
-// Existing code for forwarding email content
+// Listener for forwarding email content from Gmail to OpenAI tab
 chrome.runtime.onMessage.addListener(function (
   emailContent,
   sender,
   sendResponse
 ) {
-  console.log("Message received from Gmail:", emailContent);
-
+  // Function to forward email content to OpenAI tab
   async function forwardEmailContent() {
-    try {
-      console.log("Searching for chat.openai.com tab...");
-      const tabs = await chrome.tabs.query({
-        url: "https://chat.openai.com/*",
-      });
-
-      if (tabs.length === 0) {
-        console.error("OpenAI tab not detected.");
-        return null;
-      }
-
-      const tab = tabs[0];
-      console.log("Forwarding message to OpenAI tab...");
-      const gptResponse = await chrome.tabs.sendMessage(tab.id, emailContent);
-      console.log("Response from OpenAI:", gptResponse);
-
-      return gptResponse;
-    } catch (error) {
-      console.error("Background script error:", error);
-      return null;
-    }
+    const tabs = await chrome.tabs.query({
+      url: "https://chat.openai.com/*",
+    });
+    if (tabs.length === 0) return null;
+    const tab = tabs[0];
+    return await chrome.tabs.sendMessage(tab.id, emailContent);
   }
 
+  // Call the forwardEmailContent function and send the response
   forwardEmailContent().then(sendResponse);
+
+  // Keep the message channel open for asynchronous communication
   return true;
 });

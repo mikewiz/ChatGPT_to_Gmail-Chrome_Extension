@@ -1,33 +1,26 @@
+// Function to execute when the window is fully loaded
 window.onload = function () {
-  console.log("Page loaded.");
+  // Function to execute when the URL hash changes (e.g., navigating within Gmail)
   window.onhashchange = () => {
-    console.log("Hash changed: " + window.location.hash);
+    // Check if the hash corresponds to an inbox URL
     if (window.location.hash.startsWith("#inbox/")) {
-      console.log("Inbox hash detected.");
       const spans = document.querySelectorAll("span");
-
+      // Iterate through all span elements on the page
       for (const span of spans) {
         if (span.innerText === "Reply") {
-          console.log("Reply button detected.");
-          // Doing something with the element.
+          // Add a click event listener to the Reply button
           span.addEventListener("click", function () {
-            console.log("Reply button clicked.");
             const email = document.querySelector(".adn.ads");
             const emailContent = email.textContent.replace(/\n/g, " ");
-            console.log("Email content: ", emailContent);
+            // Async function to handle the GPT request and response
             (async function () {
-              console.log("Sending message to GPT service.");
-
               // Format the email content for GPT's understanding
               const formattedEmailContent =
                 "Respond to the most recent email in a comprehensive and professional tone and sign off with my name (Michael Flint) at the end: \n" +
                 emailContent;
-              console.log("Formatted email content ready for GPT.");
-
               // Define the API request
               let url = "https://api.openai.com/v1/chat/completions";
               let apiKey;
-
               // Retrieve the API key from Chrome storage and then make the API request
               chrome.storage.sync.get(["apiKey"], function (result) {
                 apiKey = result.apiKey;
@@ -35,18 +28,16 @@ window.onload = function () {
                   console.error("API key not found in Chrome storage.");
                   return;
                 }
-
+                // Define headers and data
                 let headers = {
                   Authorization: `Bearer ${apiKey}`,
                   "Content-Type": "application/json",
                 };
-
                 let data = {
                   model: "gpt-3.5-turbo",
                   messages: [{ role: "user", content: formattedEmailContent }],
                   max_tokens: 250,
                 };
-
                 // Make the API request
                 fetch(url, {
                   method: "POST",
@@ -55,32 +46,18 @@ window.onload = function () {
                 })
                   .then((response) => response.json())
                   .then((data) => {
-                    if (
-                      data &&
-                      data.choices &&
-                      data.choices.length > 0 &&
-                      data.choices[0].message
-                    ) {
-                      console.log(
-                        "GPT response:",
-                        data.choices[0].message.content
-                      );
-                      const gptResponse = data.choices[0].message.content;
-                      const gmailTextbox =
-                        document.querySelector("[role=textbox]");
-                      gmailTextbox.innerText = gptResponse;
-                      console.log("Gmail response textbox filled.");
-
-                      // Send a message to the background script with the status update
-                      chrome.runtime.sendMessage({
-                        type: "updateStatus",
-                        extensionStatus: "Active",
-                        lastEmail: emailContent,
-                        lastResponse: gptResponse,
-                      });
-                    } else {
-                      console.error("Unexpected GPT response format:", data);
-                    }
+                    // Handle the GPT response and update the Gmail textbox
+                    const gptResponse = data.choices[0].message.content;
+                    const gmailTextbox =
+                      document.querySelector("[role=textbox]");
+                    gmailTextbox.innerText = gptResponse;
+                    // Send a message to the background script with the status update
+                    chrome.runtime.sendMessage({
+                      type: "updateStatus",
+                      extensionStatus: "Active",
+                      lastEmail: emailContent,
+                      lastResponse: gptResponse,
+                    });
                   })
                   .catch((error) => {
                     console.error("Error:", error);

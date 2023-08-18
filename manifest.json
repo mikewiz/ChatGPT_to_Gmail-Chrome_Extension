@@ -1,6 +1,6 @@
 {
   "name": "ChatGPT + GMail",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "This is a Google Chrome Extension to connect Gmail with ChatGPT",
   "manifest_version": 3,
   "author": "Michael Flint",
