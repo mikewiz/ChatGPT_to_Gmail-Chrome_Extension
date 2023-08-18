@@ -36,17 +36,26 @@ chrome.runtime.onMessage.addListener(function (
     fetch(url, { method: "POST", headers: headers, body: JSON.stringify(data) })
       .then((response) => response.json())
       .then((data) => {
-        if (
-          data &&
-          data.choices &&
-          data.choices.length > 0 &&
-          data.choices[0].message
-        ) {
-          sendResponse(data.choices[0].message.content);
-        } else {
+        if (!data) {
+          console.error("No data received from GPT API.");
+          sendResponse(null);
+          return;
+        }
+
+        if (!data.choices || data.choices.length === 0) {
+          console.error("No choices found in GPT response:", data);
+          sendResponse(null);
+          return;
+        }
+
+        const firstChoice = data.choices[0];
+        if (!firstChoice.message || !firstChoice.message.content) {
           console.error("Unexpected GPT response format:", data);
           sendResponse(null);
+          return;
         }
+
+        sendResponse(firstChoice.message.content);
       })
       .catch((error) => {
         console.error("Error:", error);
