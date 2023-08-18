@@ -32,5 +32,10 @@
     "https://api.openai.com/*",
     "https://chat.openai.com/*"
   ],
-  "web_accessible_resources": ["popup.js"]
+  "web_accessible_resources": [
+    {
+      "resources": ["popup.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
