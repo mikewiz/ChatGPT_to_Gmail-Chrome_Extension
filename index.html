@@ -5,29 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatGPT + Gmail Extension Status</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 15px;
-            width: 300px;
-        }
-
-        .status {
-            color: green;
-        }
-
-        h2,
-        p {
-            margin: 5px 0;
-        }
-    </style>
-    <script src="popup.js"></script> <!-- Link to the popup.js script -->
+    <link rel="stylesheet" href="popupStyles.css"> <!-- Link to the new CSS file -->
+    <script src="popup.js"></script>
 </head>
 
 <body>
 
     <h2>Extension Status:</h2>
     <p id="extensionStatus" class="status">Active</p>
+
+    <h2>API Key:</h2>
+    <p id="obfuscatedApiKey">sk-...XXXX</p>
 
     <h2>Last Email Processed:</h2>
     <p id="lastEmail">None yet</p>

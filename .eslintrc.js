@@ -1,33 +1,43 @@
 module.exports = {
-  "env": {
-    "browser": true,
-    "es2021": true
+  env: {
+    browser: true,
+    es2021: true,
   },
-  "extends": "eslint:recommended",
-  "overrides": [
+  extends: "eslint:recommended",
+  overrides: [
     {
-      "env": {
-        "node": true
+      env: {
+        node: true,
       },
-      "files": [
-        ".eslintrc.{js,cjs}"
-      ],
-      "parserOptions": {
-        "sourceType": "script"
-      }
-    }
+      files: [".eslintrc.{js,cjs}"],
+      parserOptions: {
+        sourceType: "script",
+      },
+    },
+    {
+      files: ["background.js"],
+      rules: {
+        "no-unused-vars": "off",
+      },
+    },
+    {
+      files: ["gpt-script.js"],
+      rules: {
+        "no-unused-vars": ["error", { args: "none" }],
+      },
+    },
   ],
-  "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "module"
+  parserOptions: {
+    ecmaVersion: "latest",
+    sourceType: "module",
   },
-  "globals": {
-    "chrome": "readonly",
-    "gptResponse": "writeable"
+  globals: {
+    chrome: "readonly",
+    gptResponse: "writeable",
   },
-  "rules": {
-    "indent": ["error", 2],
-    "quotes": ["error", "double"],
-    "semi": ["error", "always"]
-  }
+  rules: {
+    indent: ["error", 2],
+    quotes: ["error", "double"],
+    semi: ["error", "always"],
+  },
 };

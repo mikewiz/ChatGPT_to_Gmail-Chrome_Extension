@@ -17,46 +17,66 @@ chrome.storage.sync.get(["apiKey"], function (result) {
 });
 
 // Store the latest status update
+// eslint-disable-next-line no-unused-vars
 let extensionStatus = {
   extensionStatus: "Active",
   lastEmail: "None yet",
   lastResponse: "None yet",
 };
 
-// Listener for messages from content or popup scripts
+// Listener for messages from content scripts
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-  if (message.type === "updateStatus") {
+  if (message.type === "gptRequest") {
+    const formattedEmailContent = message.emailContent;
+    let url = "https://api.openai.com/v1/models/gpt-4.0-turbo/completions";
+    let apiKey;
+
+    chrome.storage.sync.get(["apiKey"], function (result) {
+      apiKey = result.apiKey;
+      if (!apiKey) {
+        sendResponse({ error: "API key not found in Chrome storage." });
+        return;
+      }
+
+      let headers = {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      };
+      let data = {
+        prompt: formattedEmailContent,
+        max_tokens: 250,
+      };
+
+      fetch(url, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          const gptResponse = data.choices[0].text.trim();
+          sendResponse({ response: gptResponse });
+        })
+        .catch((error) => {
+          sendResponse({ error: error.message });
+        });
+    });
+
+    return true; // Keeps the message channel open for asynchronous response
+  } else if (message.type === "updateStatus") {
     // Update the stored status with the new information
     extensionStatus = {
       extensionStatus: message.extensionStatus,
       lastEmail: message.lastEmail,
       lastResponse: message.lastResponse,
     };
+    sendResponse({ status: "Status updated successfully." });
   } else if (message.type === "getStatus") {
-    // Send the stored status to the popup script
+    // Send the stored status to the requester (likely the popup script)
     sendResponse(extensionStatus);
+  } else {
+    // Handle any other message types or errors
+    sendResponse({ error: "Unknown message type." });
   }
-});
-
-// Listener for forwarding email content from Gmail to OpenAI tab
-chrome.runtime.onMessage.addListener(function (
-  emailContent,
-  sender,
-  sendResponse
-) {
-  // Function to forward email content to OpenAI tab
-  async function forwardEmailContent() {
-    const tabs = await chrome.tabs.query({
-      url: "https://chat.openai.com/*",
-    });
-    if (tabs.length === 0) return null;
-    const tab = tabs[0];
-    return await chrome.tabs.sendMessage(tab.id, emailContent);
-  }
-
-  // Call the forwardEmailContent function and send the response
-  forwardEmailContent().then(sendResponse);
-
-  // Keep the message channel open for asynchronous communication
-  return true;
+  return true; // Keeps the message channel open for asynchronous response
 });

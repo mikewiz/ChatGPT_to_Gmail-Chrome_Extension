@@ -5,64 +5,31 @@ chrome.runtime.onMessage.addListener(function (
   sender,
   sendResponse
 ) {
-  // Format the email content for GPT's understanding
-  const formattedEmailContent =
-    "Respond to the most recent email in a comprehensive and professional tone and sign off with my name (Michael Flint) at the end: \n" +
-    emailContent;
+  console.log("Received message from Chrome runtime.");
 
-  let url = "https://api.openai.com/v1/chat/completions";
-  let apiKey;
+  chrome.storage.sync.get(["prependString"], function (result) {
+    const defaultPrependString =
+      "Respond to the most recent email in a comprehensive and professional tone and sign off with my name (Michael Flint) at the end: \n";
+    const prependString = result.prependString || defaultPrependString;
+    const formattedEmailContent = prependString + emailContent;
 
-  // Retrieve the API key from Chrome storage
-  chrome.storage.sync.get(["apiKey"], function (result) {
-    apiKey = result.apiKey;
-    if (!apiKey) {
-      console.error("API key not found in Chrome storage.");
-      sendResponse(null);
-      return;
-    }
+    console.log("Formatted email content for GPT:", formattedEmailContent);
 
-    let headers = {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    };
-    let data = {
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: formattedEmailContent }],
-      max_tokens: 250,
-    };
-
-    // Make the API request
-    fetch(url, { method: "POST", headers: headers, body: JSON.stringify(data) })
-      .then((response) => response.json())
-      .then((data) => {
-        if (!data) {
-          console.error("No data received from GPT API.");
-          sendResponse(null);
+    chrome.runtime.sendMessage(
+      { type: "gptRequest", emailContent: formattedEmailContent },
+      function (response) {
+        if (response.error) {
+          console.error(response.error);
           return;
         }
 
-        if (!data.choices || data.choices.length === 0) {
-          console.error("No choices found in GPT response:", data);
-          sendResponse(null);
-          return;
-        }
+        console.log("GPT response:", response.response);
+        // Handle the GPT response as needed
+      }
+    );
 
-        const firstChoice = data.choices[0];
-        if (!firstChoice.message || !firstChoice.message.content) {
-          console.error("Unexpected GPT response format:", data);
-          sendResponse(null);
-          return;
-        }
-
-        sendResponse(firstChoice.message.content);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        sendResponse(null);
-      });
+    // Keep the message channel open for asynchronous communication
+    console.log("Keeping message channel open for asynchronous communication.");
+    return true;
   });
-
-  // Keep the message channel open for asynchronous communication
-  return true;
 });

@@ -8,3 +8,32 @@ chrome.runtime.sendMessage({ type: "getStatus" }, function (response) {
     document.getElementById("lastResponse").textContent = response.lastResponse;
   }
 });
+
+// Retrieve and display the obfuscated API key
+chrome.storage.sync.get(["obfuscatedApiKey"], function (result) {
+  if (result.obfuscatedApiKey) {
+    document.getElementById("obfuscatedApiKey").textContent =
+      result.obfuscatedApiKey;
+  }
+});
+
+// Retrieve and display the saved prepend string
+chrome.storage.sync.get(["prependString"], function (result) {
+  const defaultPrependString =
+    "Respond to the most recent email in a comprehensive and professional tone and sign off with my name (Michael Flint) at the end: \n";
+  document.getElementById("prependText").value =
+    result.prependString || defaultPrependString;
+});
+
+// Save the edited prepend string
+document
+  .getElementById("savePrependText")
+  .addEventListener("click", function () {
+    const editedPrependString = document.getElementById("prependText").value;
+    chrome.storage.sync.set(
+      { prependString: editedPrependString },
+      function () {
+        alert("Prepend text saved successfully!");
+      }
+    );
+  });

@@ -1,6 +1,6 @@
 {
   "name": "ChatGPT + GMail",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "This is a Google Chrome Extension to connect Gmail with ChatGPT",
   "manifest_version": 3,
   "author": "Michael Flint",
@@ -15,7 +15,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://mail.google.com/*", "https://api.openai.com/*"],
+      "matches": ["https://mail.google.com/*"],
       "js": ["gmail-script.js"]
     },
     {
@@ -26,7 +26,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "notifications"],
+  "permissions": ["storage", "notifications", "webRequest", "tabs"],
   "host_permissions": [
     "https://mail.google.com/*",
     "https://api.openai.com/*",
@@ -34,7 +34,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["popup.js"],
+      "resources": ["popup.js", "options.js"],
       "matches": ["<all_urls>"]
     }
   ]

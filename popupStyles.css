@@ -1,0 +1,35 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f8fa;
+    padding: 15px;
+    width: 300px;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.status {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+h2 {
+    margin: 10px 0;
+    font-size: 16px;
+    color: #555;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 5px;
+}
+
+p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+#obfuscatedApiKey {
+    background-color: #e0e0e0;
+    padding: 5px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+}
