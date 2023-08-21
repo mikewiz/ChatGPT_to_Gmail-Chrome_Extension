@@ -28,7 +28,8 @@ let extensionStatus = {
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.type === "gptRequest") {
     const formattedEmailContent = message.emailContent;
-    let url = "https://api.openai.com/v1/models/gpt-4.0-turbo/completions";
+
+    let url = "https://api.openai.com/v1/completions";
     let apiKey;
 
     chrome.storage.sync.get(["apiKey"], function (result) {
@@ -45,6 +46,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       let data = {
         prompt: formattedEmailContent,
         max_tokens: 250,
+        model: "text-davinci-003",
       };
 
       fetch(url, {
@@ -54,10 +56,14 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       })
         .then((response) => response.json())
         .then((data) => {
+          if (data.error) {
+            console.error(data.error);
+          }
           const gptResponse = data.choices[0].text.trim();
           sendResponse({ response: gptResponse });
         })
         .catch((error) => {
+          console.error(error);
           sendResponse({ error: error.message });
         });
     });
