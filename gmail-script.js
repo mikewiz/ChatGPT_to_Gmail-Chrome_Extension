@@ -1,6 +1,13 @@
+let username = ""; // Declare at the top of your script
+
 // Function to execute when the window is fully loaded
 window.onload = function () {
   console.log("Window loaded.");
+
+  // Fetch the username from Chrome's storage
+  chrome.storage.sync.get(["username"], function (result) {
+    username = result.username || ""; // Use a default value if not found
+  });
 
   // #1 Wait until the inbox pops up (or until 4 seconds pass)
   const inboxCheckInterval = setInterval(() => {
@@ -19,7 +26,7 @@ window.onload = function () {
   };
 
   // #3 Call again whenever the url changes
-  window.addEventListener("popstate", function (event) {
+  window.addEventListener("popstate", function () {
     setupReplyButtonListenerIfNeeded();
   });
 };
@@ -60,7 +67,9 @@ function replyClickedFunction() {
 
     // Format the email content for GPT's understanding
     const formattedEmailContent =
-      "Respond to the most recent email in a comprehensive and professional tone and sign off with my name (Michael Flint) at the end: \n" +
+      "Respond to the most recent email in a comprehensive and professional tone and sign off with " +
+      username +
+      " at the end: \n" +
       emailContent;
     console.log("Email content formatted for GPT.");
 
@@ -90,6 +99,12 @@ function replyClickedFunction() {
           lastResponse: response.response,
         });
         console.log("Status message sent to background script.");
+
+        // Store the last email and response in chrome storage
+        chrome.storage.sync.set({
+          lastEmailStored: emailContent,
+          lastResponseStored: response.response,
+        });
       }
     );
   } else {

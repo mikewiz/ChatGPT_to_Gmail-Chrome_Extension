@@ -1,3 +1,10 @@
+// Function to get the Gmail username from storage
+function getGmailUsernameFromStorage(callback) {
+  chrome.storage.sync.get(["gmailUsername"], function (result) {
+    callback(result.gmailUsername || "@user");
+  });
+}
+
 // Request the current status from the background script when the popup is opened
 chrome.runtime.sendMessage({ type: "getStatus" }, function (response) {
   if (response) {
@@ -19,11 +26,27 @@ chrome.storage.sync.get(["obfuscatedApiKey"], function (result) {
 
 // Retrieve and display the saved prepend string
 chrome.storage.sync.get(["prependString"], function (result) {
-  const defaultPrependString =
-    "Respond to the most recent email in a comprehensive and professional tone and sign off with my name (Michael Flint) at the end: \n";
-  document.getElementById("prependText").value =
-    result.prependString || defaultPrependString;
+  getGmailUsernameFromStorage(function (username) {
+    const defaultPrependString =
+      "Respond to the most recent email in a comprehensive and professional tone and sign off with " +
+      username +
+      " at the end: \n";
+    document.getElementById("prependText").value =
+      result.prependString || defaultPrependString;
+  });
 });
+
+// Retrieve and display the persisted "Last Email Processed" & "Last GPT Response"
+chrome.storage.sync.get(
+  ["lastEmailStored", "lastResponseStored"],
+  function (result) {
+    if (result.lastEmailStored && result.lastResponseStored) {
+      document.getElementById("lastEmail").textContent = result.lastEmailStored;
+      document.getElementById("lastResponse").textContent =
+        result.lastResponseStored;
+    }
+  }
+);
 
 // Save the edited prepend string
 document
