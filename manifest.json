@@ -1,6 +1,6 @@
 {
   "name": "ChatGPT + GMail",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "This is a Google Chrome Extension to connect Gmail with ChatGPT",
   "manifest_version": 3,
   "author": "Michael Flint, Chris Woodlief",
@@ -8,53 +8,26 @@
   "action": {
     "default_popup": "index.html",
     "default_icon": {
-      "16": "icons/1/icon16.png",
-      "48": "icons/1/icon48.png",
-      "128": "icons/1/icon128.png"
+      "16": "icons/2/icon16.png",
+      "48": "icons/2/icon48.png",
+      "128": "icons/2/icon128.png"
     }
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://mail.google.com/*"
-      ],
-      "js": [
-        "gmail-script.js"
-      ]
-    },
-    {
-      "matches": [
-        "https://api.openai.com/*",
-        "https://chat.openai.com/*"
-      ],
-      "js": [
-        "gpt-script.js"
-      ]
+      "matches": ["https://mail.google.com/*"],
+      "js": ["gmail-script.js"]
     }
   ],
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": [
-    "storage",
-    "notifications",
-    "webRequest",
-    "tabs"
-  ],
-  "host_permissions": [
-    "https://mail.google.com/*",
-    "https://api.openai.com/*",
-    "https://chat.openai.com/*"
-  ],
+  "permissions": ["storage", "notifications", "webRequest", "tabs"],
+  "host_permissions": ["https://mail.google.com/*"],
   "web_accessible_resources": [
     {
-      "resources": [
-        "popup.js",
-        "options.js"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "resources": ["popup.js", "options.js"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
