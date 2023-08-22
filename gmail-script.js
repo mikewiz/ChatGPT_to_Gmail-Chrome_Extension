@@ -2,6 +2,18 @@
 window.onload = function () {
   console.log("Window loaded.");
 
+  // Function to get the Gmail username
+  function getGmailUsername() {
+    // Hypothetical method to get the Gmail username
+    // This might need adjustment based on the actual Gmail interface
+    const userElement = document.querySelector(".gmail-username-element"); // Replace with the actual selector
+    return userElement ? userElement.textContent : "@user"; // Default to "@user" if not found
+  }
+
+  // Send the Gmail username to the background script
+  const username = getGmailUsername();
+  chrome.runtime.sendMessage({ type: "storeUsername", username: username });
+
   // Function to execute when the URL hash changes (e.g., navigating within Gmail)
   window.onhashchange = () => {
     console.log("URL hash changed.");
@@ -27,28 +39,22 @@ window.onload = function () {
 
               // Format the email content for GPT's understanding
               const formattedEmailContent =
-                "Respond to the most recent email in a comprehensive and professional tone and sign off with my name (Michael Flint) at the end: \n" +
+                "Respond to the most recent email in a comprehensive and professional tone and sign off with " +
+                username +
+                " at the end: \n" +
                 emailContent;
               console.log("Email content formatted for GPT.");
-
-              const loadingIndicationInterval = setInterval(() => {
-                const numDots = countDotsInString(getGmailTextboxText());
-                const newDotsCount = numDots < 5 ? numDots + 1 : 0;
-                updateGmailTextboxText(
-                  `Loading${getStringWithNumDots(newDotsCount)}`
-                );
-              }, 200);
 
               chrome.runtime.sendMessage(
                 { type: "gptRequest", emailContent: formattedEmailContent },
                 function (response) {
-                  clearInterval(loadingIndicationInterval);
                   if (response.error) {
                     console.error(response.error);
                     return;
                   }
 
-                  updateGmailTextboxText(response.response);
+                  const gmailTextbox = document.querySelector("[role=textbox]");
+                  gmailTextbox.innerText = response.response;
                   console.log("Gmail textbox updated with GPT response.");
 
                   // Send a message to the background script with the status update
@@ -59,6 +65,12 @@ window.onload = function () {
                     lastResponse: response.response,
                   });
                   console.log("Status message sent to background script.");
+
+                  // Store the last email and response in chrome storage
+                  chrome.storage.sync.set({
+                    lastEmailStored: emailContent,
+                    lastResponseStored: response.response,
+                  });
                 }
               );
             } else {
@@ -70,21 +82,3 @@ window.onload = function () {
     }
   };
 };
-
-function getStringWithNumDots(n) {
-  return ".".repeat(n);
-}
-
-function countDotsInString(str) {
-  return str.split(".").length - 1;
-}
-
-function getGmailTextboxText() {
-  const gmailTextbox = document.querySelector("[role=textbox]");
-  return gmailTextbox.innerText;
-}
-
-function updateGmailTextboxText(newText) {
-  const gmailTextbox = document.querySelector("[role=textbox]");
-  gmailTextbox.innerText = newText;
-}

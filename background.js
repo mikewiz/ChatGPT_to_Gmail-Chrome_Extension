@@ -17,7 +17,6 @@ chrome.storage.sync.get(["apiKey"], function (result) {
 });
 
 // Store the latest status update
-// eslint-disable-next-line no-unused-vars
 let extensionStatus = {
   extensionStatus: "Active",
   lastEmail: "None yet",
@@ -80,6 +79,13 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   } else if (message.type === "getStatus") {
     // Send the stored status to the requester (likely the popup script)
     sendResponse(extensionStatus);
+  } else if (message.type === "storeUsername") {
+    // Store the received Gmail username in chrome.storage.sync
+    chrome.storage.sync.set({ gmailUsername: message.username }, function () {
+      console.log("Gmail username stored successfully.");
+      sendResponse({ status: "Username stored successfully." });
+    });
+    return true; // Keeps the message channel open for asynchronous response
   } else {
     // Handle any other message types or errors
     sendResponse({ error: "Unknown message type." });
