@@ -2,25 +2,23 @@
 window.onload = function () {
   console.log("Window loaded.");
 
-  // Call once on initial page load
-  setupReplyButtonListenerIfNeeded();
-
+  // #1 Wait until the inbox pops up (or until 4 seconds pass)
   const inboxCheckInterval = setInterval(() => {
     if (doesInboxAppearOnPage()) {
       clearInterval(inboxCheckInterval);
       setupReplyButtonListenerIfNeeded();
     }
   }, 50);
-
   setTimeout(() => {
     clearInterval(inboxCheckInterval);
   }, 4000);
 
-  // Call again when a hash changes
+  // #2 Call again whenever a hash changes
   window.onhashchange = () => {
     setupReplyButtonListenerIfNeeded();
   };
 
+  // #3 Call again whenever the url changes
   window.addEventListener("popstate", function (event) {
     setupReplyButtonListenerIfNeeded();
   });
