@@ -1,9 +1,11 @@
-// Declare username at the top of your script
+// Declare username and signature
 let username = "";
+let signature = "";
 
 // Fetch the username from Chrome's storage
 chrome.storage.sync.get(["username"], function (result) {
   username = result.username || ""; // Use a default value if not found
+  console.log("Fetched username:", username);
 });
 
 // Function to execute when the window is fully loaded
@@ -73,7 +75,7 @@ function replyClickedFunction() {
       username +
       " at the end: \n" +
       emailContent;
-    console.log("Email content formatted for GPT.");
+    console.log("Email content formatted for GPT:  " + formattedEmailContent);
 
     const loadingIndicationInterval = setInterval(() => {
       const numDots = countDotsInString(getGmailTextboxText());
@@ -97,7 +99,7 @@ function replyClickedFunction() {
         chrome.runtime.sendMessage({
           type: "updateStatus",
           extensionStatus: "Active",
-          lastEmail: emailContent,
+          lastEmail: formattedEmailContent,
           lastResponse: response.response,
         });
         console.log("Status message sent to background script.");
@@ -124,10 +126,18 @@ function countDotsInString(str) {
 
 function getGmailTextboxText() {
   const gmailTextbox = document.querySelector("[role=textbox]");
-  return gmailTextbox.innerText;
+  return gmailTextbox ? gmailTextbox.innerText : null;
 }
 
 function updateGmailTextboxText(newText) {
   const gmailTextbox = document.querySelector("[role=textbox]");
-  gmailTextbox.innerText = newText;
+  if (gmailTextbox) {
+    // Check if the signature hasn't been captured yet and there is some content in the gmailTextbox
+    if (signature.length === 0 && gmailTextbox.innerText.trim().length !== 0) {
+      signature = gmailTextbox.innerText;
+    }
+    gmailTextbox.innerText = newText;
+  } else {
+    console.error("Gmail textbox not found.");
+  }
 }
