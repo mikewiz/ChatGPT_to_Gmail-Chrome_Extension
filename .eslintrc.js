@@ -26,6 +26,12 @@ module.exports = {
         "no-unused-vars": ["error", { args: "none" }],
       },
     },
+    {
+      files: ["gmail-script.js"], // Add this override for gmail-script.js
+      rules: {
+        "no-unused-vars": ["error", { argsIgnorePattern: "^event$" }],
+      },
+    },
   ],
   parserOptions: {
     ecmaVersion: "latest",
