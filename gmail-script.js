@@ -40,56 +40,60 @@ function setupReplyButtonListenerIfNeeded() {
     if (span.innerText === "Reply") {
       console.log("Reply button found.");
 
+      // Cloning to get rid of event listeners
+      let clonedSpan = span.cloneNode(true);
+      span.parentNode.replaceChild(clonedSpan, span);
+
       // Add a click event listener to the Reply button
-      span.addEventListener("click", function () {
-        console.log("Reply button clicked.");
-
-        const email = document.querySelector(".adn.ads");
-        if (email) {
-          const emailContent = email.textContent.replace(/\n/g, " ");
-          console.log("Email content retrieved.");
-
-          // Format the email content for GPT's understanding
-          const formattedEmailContent =
-            "Respond to the most recent email in a comprehensive and professional tone and sign off with my name (Michael Flint) at the end: \n" +
-            emailContent;
-          console.log("Email content formatted for GPT.");
-
-          const loadingIndicationInterval = setInterval(() => {
-            const numDots = countDotsInString(getGmailTextboxText());
-            const newDotsCount = numDots < 5 ? numDots + 1 : 0;
-            updateGmailTextboxText(
-              `Loading${getStringWithNumDots(newDotsCount)}`
-            );
-          }, 200);
-
-          chrome.runtime.sendMessage(
-            { type: "gptRequest", emailContent: formattedEmailContent },
-            function (response) {
-              clearInterval(loadingIndicationInterval);
-              if (response.error) {
-                console.error(response.error);
-                return;
-              }
-
-              updateGmailTextboxText(response.response);
-              console.log("Gmail textbox updated with GPT response.");
-
-              // Send a message to the background script with the status update
-              chrome.runtime.sendMessage({
-                type: "updateStatus",
-                extensionStatus: "Active",
-                lastEmail: emailContent,
-                lastResponse: response.response,
-              });
-              console.log("Status message sent to background script.");
-            }
-          );
-        } else {
-          console.error("Email content not found.");
-        }
-      });
+      clonedSpan.addEventListener("click", replyClickedFunction);
     }
+  }
+}
+
+function replyClickedFunction() {
+  console.log("Reply button clicked.");
+
+  const email = document.querySelector(".adn.ads");
+  if (email) {
+    const emailContent = email.textContent.replace(/\n/g, " ");
+    console.log("Email content retrieved.");
+
+    // Format the email content for GPT's understanding
+    const formattedEmailContent =
+      "Respond to the most recent email in a comprehensive and professional tone and sign off with my name (Michael Flint) at the end: \n" +
+      emailContent;
+    console.log("Email content formatted for GPT.");
+
+    const loadingIndicationInterval = setInterval(() => {
+      const numDots = countDotsInString(getGmailTextboxText());
+      const newDotsCount = numDots < 5 ? numDots + 1 : 0;
+      updateGmailTextboxText(`Loading${getStringWithNumDots(newDotsCount)}`);
+    }, 200);
+
+    chrome.runtime.sendMessage(
+      { type: "gptRequest", emailContent: formattedEmailContent },
+      function (response) {
+        clearInterval(loadingIndicationInterval);
+        if (response.error) {
+          console.error(response.error);
+          return;
+        }
+
+        updateGmailTextboxText(response.response);
+        console.log("Gmail textbox updated with GPT response.");
+
+        // Send a message to the background script with the status update
+        chrome.runtime.sendMessage({
+          type: "updateStatus",
+          extensionStatus: "Active",
+          lastEmail: emailContent,
+          lastResponse: response.response,
+        });
+        console.log("Status message sent to background script.");
+      }
+    );
+  } else {
+    console.error("Email content not found.");
   }
 }
 
