@@ -1,6 +1,13 @@
 // Log a message to indicate the background script has started
 console.log("Background script initiated.");
 
+let username = ""; // Declare at the top of your script
+
+// Fetch the username from Chrome's storage
+chrome.storage.sync.get(["username"], function (result) {
+  username = result.username || ""; // Use a default value if not found
+});
+
 // Check if the API key is set in Chrome's storage
 chrome.storage.sync.get(["apiKey"], function (result) {
   if (!result.apiKey) {

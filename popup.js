@@ -1,8 +1,13 @@
+let username = ""; // Declare at the top of your script
+
+// Fetch the username from Chrome's storage
+chrome.storage.sync.get(["username"], function (result) {
+  username = result.username || ""; // Use a default value if not found
+});
+
 // Function to get the Gmail username from storage
 function getGmailUsernameFromStorage(callback) {
-  chrome.storage.sync.get(["gmailUsername"], function (result) {
-    callback(result.gmailUsername || "@user");
-  });
+  callback(username); // Use the fetched username
 }
 
 // Request the current status from the background script when the popup is opened
@@ -26,10 +31,10 @@ chrome.storage.sync.get(["obfuscatedApiKey"], function (result) {
 
 // Retrieve and display the saved prepend string
 chrome.storage.sync.get(["prependString"], function (result) {
-  getGmailUsernameFromStorage(function (username) {
+  getGmailUsernameFromStorage(function (gmailUsername) {
     const defaultPrependString =
       "Respond to the most recent email in a comprehensive and professional tone and sign off with " +
-      username +
+      gmailUsername +
       " at the end: \n";
     document.getElementById("prependText").value =
       result.prependString || defaultPrependString;

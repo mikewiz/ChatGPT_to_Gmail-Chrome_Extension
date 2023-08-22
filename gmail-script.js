@@ -1,13 +1,14 @@
-let username = ""; // Declare at the top of your script
+// Declare username at the top of your script
+let username = "";
+
+// Fetch the username from Chrome's storage
+chrome.storage.sync.get(["username"], function (result) {
+  username = result.username || ""; // Use a default value if not found
+});
 
 // Function to execute when the window is fully loaded
 window.onload = function () {
   console.log("Window loaded.");
-
-  // Fetch the username from Chrome's storage
-  chrome.storage.sync.get(["username"], function (result) {
-    username = result.username || ""; // Use a default value if not found
-  });
 
   // #1 Wait until the inbox pops up (or until 4 seconds pass)
   const inboxCheckInterval = setInterval(() => {
@@ -26,7 +27,7 @@ window.onload = function () {
   };
 
   // #3 Call again whenever the url changes
-  window.addEventListener("popstate", function () {
+  window.addEventListener("popstate", function (event) {
     setupReplyButtonListenerIfNeeded();
   });
 };
@@ -38,6 +39,7 @@ function doesInboxAppearOnPage() {
       return true;
     }
   }
+  return false;
 }
 
 function setupReplyButtonListenerIfNeeded() {
