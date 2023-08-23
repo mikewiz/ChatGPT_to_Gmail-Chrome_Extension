@@ -1,22 +1,30 @@
 body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+    font-size: 15.5px;
+    background-color: #fdf800;
+    color: black;
+    text-shadow: none;
+    padding: 10px 20px;
+    border-radius: 15px;
 }
 
 h2 {
-    color: #333;
+    color: #00d8f3;
 }
 
 input[type="text"] {
     padding: 8px;
     width: 300px;
     margin-right: 10px;
+    background-color: #fdf800;
+    color: black;
 }
 
 button {
     padding: 8px 15px;
-    background-color: #007BFF;
-    color: #FFF;
+    background-color: #fdf800;
+    color: black;
     border: none;
     cursor: pointer;
 }

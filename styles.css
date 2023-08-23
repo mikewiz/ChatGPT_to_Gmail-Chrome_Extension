@@ -1,0 +1,44 @@
+body {
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  font-size: 15.5px;
+  background-color: #fdf800;
+  color: black;
+  text-shadow: none;
+  padding: 10px 20px;
+  border-radius: 15px;
+}
+
+.status {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+h2 {
+  color: #00d8f3;
+  margin: 5px 0;
+}
+
+p {
+  color: #00d8f3;
+  margin: 5px 0;
+}
+
+textarea {
+  background-color: #fdf800;
+  color: black;
+  padding: 5px;
+  border-radius: 3px;
+}
+
+button {
+  padding: 8px 15px;
+  background-color: #fdf800;
+  color: black;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
