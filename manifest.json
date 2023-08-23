@@ -16,18 +16,23 @@
   "content_scripts": [
     {
       "matches": ["https://mail.google.com/*"],
-      "js": ["gmail-script.js"]
+      "js": ["gmail-script.js"],
+      "run_at": "document_idle"
     }
   ],
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "notifications", "webRequest", "tabs"],
+  "permissions": ["identity", "storage", "notifications", "webRequest", "tabs"],
   "host_permissions": ["https://mail.google.com/*"],
   "web_accessible_resources": [
     {
       "resources": ["popup.js", "options.js"],
       "matches": ["<all_urls>"]
     }
-  ]
+  ],
+  "oauth2": {
+    "client_id": "885385555689-40rj42lb2psfatdm1r507srbhaf8rq5m.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/userinfo.profile"]
+  }
 }
