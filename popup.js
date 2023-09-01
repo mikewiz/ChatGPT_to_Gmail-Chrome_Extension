@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   console.log("Initializing popup.js...");
 
-  let username = "Michael F. Popup"; // Declare at the top of your script
+  let username = "Michael Flint set in popup.js"; // Declare at the top of your script
 
   // Fetch the username from Chrome's storage
   chrome.storage.sync.get(["username"], function (result) {
@@ -25,11 +25,23 @@ document.addEventListener("DOMContentLoaded", function() {
   chrome.runtime.sendMessage({ type: "getStatus" }, function (response) {
     if (response) {
       console.log("Received status from background script:", response);
-      // Update the extension status, last email, and last GPT response in the popup
-      document.getElementById("extensionStatus").textContent =
-        response.extensionStatus;
+      // Update all status variables in the popup
+      document.getElementById("extensionStatus").textContent = response.extensionStatus;
       document.getElementById("lastEmail").textContent = response.lastEmail;
       document.getElementById("lastResponse").textContent = response.lastResponse;
+      document.getElementById("prependText").value = response.prependText; // New
+      // Update the theme toggle status (assuming you have a way to represent it in the UI)
+      if (response.themeToggled) {
+      // Code to switch to the dark theme
+      } else {
+      // Code to switch to the light theme
+      }
+      // Update the username capture status (assuming you have a way to represent it in the UI)
+      if (response.usernameCaptured) {
+      // Code to indicate that username has been captured
+      } else {
+      // Code to indicate that username has not been captured
+      }
     } else {
       console.warn("No response received from background script.");
     }
@@ -93,19 +105,14 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   // Save the edited prepend string
-  document
-    .getElementById("savePrependText")
-    .addEventListener("click", function () {
-      const editedPrependString = document.getElementById("prependText").value;
-      console.log("Saving edited prepend string:", editedPrependString);
-      chrome.storage.sync.set(
-        { prependString: editedPrependString },
-        function () {
-          console.log("Prepend text saved successfully.");
-          alert("Prepend text saved successfully!");
-        }
-      );
+  document.getElementById("savePrependText").addEventListener("click", function () {
+    const editedPrependString = document.getElementById("prependText").value;
+    console.log("Saving edited prepend string:", editedPrependString);
+    chrome.storage.sync.set({ prependString: editedPrependString }, function () {
+      console.log("Prepend text saved successfully.");
+      alert("Prepend text saved successfully!");
     });
+  });
     
   // Toggle Theme Functionality
   document.getElementById("toggleTheme").addEventListener("click", function () {

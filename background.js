@@ -3,29 +3,26 @@ console.log("Background script initiated.");
 
 let username = "Michael F. Background"; // Declare at the top of your script
 
-// Store the latest status update
+// Store the latest status update with additional fields
 let extensionStatus = {
   extensionStatus: "Active",
   lastEmail: "No emails processed yet.",
   lastResponse: "No GPT responses yet.",
+  apiKeyStatus: "Not Checked",
+  gmailUsername: "Not Set",
+  prependText: "Default Prepend Text",
+  themeToggled: false,
+  usernameCaptured: false
 };
 console.log("Initial extension status set:", extensionStatus);
 
 // Event listener for when the extension is installed or updated
 chrome.runtime.onInstalled.addListener(function (details) {
   if (details.reason === "install" || details.reason === "update") {
-    console.log(
-      "Setting initial values for lastEmailStored and lastResponseStored..."
-    );
-    chrome.storage.sync.set(
-      {
-        lastEmailStored: extensionStatus.lastEmail,
-        lastResponseStored: extensionStatus.lastResponse,
-      },
-      function () {
-        console.log("Initial values set successfully.");
-      }
-    );
+    // Initialize all status variables in storage
+    chrome.storage.sync.set(extensionStatus, function () {
+      console.log("Initial values set successfully.");
+    });
   }
 });
 
@@ -201,13 +198,24 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     return true; // Keeps the message channel open for asynchronous response
   } else if (message.type === "updateStatus") {
-    // Update the stored status with the new information
+    // Update the stored status with the new information and additional fields
     extensionStatus = {
       extensionStatus: message.extensionStatus,
       lastEmail: message.lastEmail,
       lastResponse: message.lastResponse,
+      apiKeyStatus: message.apiKeyStatus,
+      gmailUsername: message.gmailUsername,
+      prependText: message.prependText,
+      themeToggled: message.themeToggled,
+      usernameCaptured: message.usernameCaptured
     };
     console.log("Updated extension status:", extensionStatus);
+
+    // Update all status variables in storage
+    chrome.storage.sync.set(extensionStatus, function () {
+      console.log("Updated values set successfully.");
+    });
+
     sendResponse({ status: "Status updated successfully." });
   } else if (message.type === "getStatus") {
     // Send the stored status to the requester (likely the popup script)
@@ -222,17 +230,17 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     });
     return true; // Keeps the message channel open for asynchronous response
   } else if (message.type === "gmailUserNameError") {
-    console.warn(message.error);
+    console.log("gmailUserNameError handling in background.js. Original Message: " + message.error);
     // Handle the error, e.g., notify the user or log it for debugging.
     chrome.notifications.create({
       type: "basic",
-      iconUrl: "icons/2/icon16.png", // Path to your extension's icon
+      iconUrl: "icons/2/icon16.png",
       title: "Error",
       message: message.error,
     });
   } else {
     // Handle any other message types or errors
-    console.warn("Unknown message type received:", message.type);
+    console.warn("Unknown message type received: ", message.type);
     sendResponse({ error: "Unknown message type." });
   }
 

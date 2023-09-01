@@ -25,11 +25,14 @@ function getGmailUserFullName() {
       setTimeout(attemptFetch, retryInterval);
     } else {
       console.log("Warning: Unable to find Gmail user full name. Gmail might have updated its UI.");
-      // Send a message to the background script about the error
-      chrome.runtime.sendMessage({
-        type: "gmailUserNameError",
-        error: "Warning from gmail-script.js: Unable to fetch Gmail user's full name.",
-      });
+      // Check if chrome.runtime is defined before calling sendMessage
+      if (chrome && chrome.runtime && chrome.runtime.sendMessage) {
+        chrome.runtime.sendMessage({
+          type: "gmailUserNameError",
+          error: "Warning from gmail-script.js: Unable to fetch Gmail user's full name.",
+          usernameCaptured: false // New status variable
+        });
+      }
       return "Michael Flint";  // Return the default name "Michael Flint"
     }
   };
@@ -37,14 +40,10 @@ function getGmailUserFullName() {
   return attemptFetch();
 }
 
-
 const gmailUserFullName = getGmailUserFullName();
 console.log("Gmail user's full name: ", gmailUserFullName);
 
-// Declare signature
-let signature = "";
-
-console.log("Initializing gmail-script...");
+let signature = ""; // Declare signature
 
 // Function to execute when the window is fully loaded
 window.onload = function () {
@@ -118,8 +117,9 @@ function replyClickedFunction() {
     const emailContent = email.textContent.replace(/\n/g, " ");
     console.log("Email content retrieved.");
 
+    const prependText = "Reply to the latest email in this thread, considering all prior emails for context."; // New status variable
     // Format the email content to ensure GPT understands how to reply. Instruct GPT to respond to the latest email in the thread, using prior emails as context. Specify the reply should be from the Gmail user's full name, representing MEP Hot Sauces, in an upbeat and professional tone.
-    const formattedEmailContent = "Reply to the latest email in this thread, considering all prior emails for context. Respond as " + gmailUserFullName + " from MEP Hot Sauces, maintaining an upbeat and professional tone:" + "\n";
+    const formattedEmailContent = `${prependText} Respond as ${gmailUserFullName} from MEP Hot Sauces, maintaining an upbeat and professional tone:\n`;
     console.log("Email content formatted for GPT:  " + formattedEmailContent);
 	
     // Modify the calling function to handle the callback
@@ -140,6 +140,7 @@ function replyClickedFunction() {
           return;
         }
 
+        console.log("Retrieving ChatGPT crafted gmail response, and updating the draft message with the response.");
         updateGmailTextboxText(response.response);
         console.log("Gmail textbox updated with GPT response.");
 
@@ -149,6 +150,9 @@ function replyClickedFunction() {
           extensionStatus: "Active",
           lastEmail: formattedEmailContent,
           lastResponse: response.response,
+          prependText: prependText, // New status variable
+          themeToggled: false, // New status variable
+          usernameCaptured: !!gmailUserFullName // New status variable
         });
         console.log("Status message sent to background script.");
 
@@ -179,12 +183,10 @@ function countDotsInString(str) {
 }
 
 function getGmailTextboxText() {
-  console.log("Retrieving Gmail textbox content...");
   let retries = 5;
   let interval = setInterval(() => {
     const gmailTextbox = document.querySelector("[role=textbox]");
     if (gmailTextbox) {
-      console.log("Gmail textbox content retrieved.");
       clearInterval(interval);
       return gmailTextbox.innerText;
     } else if (--retries <= 0) {
@@ -216,5 +218,3 @@ function updateGmailTextboxText(newText) {
     console.error("Gmail textbox not found.");
   }
 }
-
-console.log("gmail-script.js initialized.");
