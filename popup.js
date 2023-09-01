@@ -49,12 +49,9 @@ document.addEventListener("DOMContentLoaded", function() {
   // Retrieve and display the saved prepend string
   chrome.storage.sync.get(["prependString"], function (result) {
     getGmailUsernameFromStorage(function (gmailUsername) {
-      const defaultPrependString =
-        "Respond to the most recent email in a comprehensive and professional tone and sign off with " +
-        gmailUsername +
-        " at the end: \n";
-      document.getElementById("prependText").value =
-        result.prependString || defaultPrependString;
+      // Format prepend string to instruct GPT on responding to the latest email
+      const defaultPrependString = "Respond to this email threads' most recent email message, while using all previous emails in the thread as contextual aid. Reply as " + gmailUsername + " at the end: \n";
+      document.getElementById("prependText").value = result.prependString || defaultPrependString;
       console.log("Displayed prepend string:", result.prependString);
     });
   });

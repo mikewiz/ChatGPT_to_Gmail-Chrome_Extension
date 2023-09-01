@@ -118,12 +118,8 @@ function replyClickedFunction() {
     const emailContent = email.textContent.replace(/\n/g, " ");
     console.log("Email content retrieved.");
 
-    // Format the email content for GPT's understanding
-    const formattedEmailContent =
-      "Respond to the most recent email in a comprehensive and professional tone and sign off with " +
-      gmailUserFullName +
-      " at the end: \n" +
-      emailContent;
+    // Format the email content to ensure GPT understands how to reply. Instruct GPT to respond to the latest email in the thread, using prior emails as context. Specify the reply should be from the Gmail user's full name, representing MEP Hot Sauces, in an upbeat and professional tone.
+    const formattedEmailContent = "Reply to the latest email in this thread, considering all prior emails for context. Respond as " + gmailUserFullName + " from MEP Hot Sauces, maintaining an upbeat and professional tone:" + "\n";
     console.log("Email content formatted for GPT:  " + formattedEmailContent);
 	
     // Modify the calling function to handle the callback
