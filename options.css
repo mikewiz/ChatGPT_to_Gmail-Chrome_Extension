@@ -2,13 +2,13 @@ body {
     font-family: Roboto, sans-serif;
     font-weight: 400;
     font-size: 15.5px;
-    background-color: #fdf800;
-    color: black;
+    background-color: #343541;  /* Updated background color */
+    color: #ececdf;  /* Updated font color */
     text-shadow: none;
     padding: 10px 20px;
     border-radius: 15px;
 }
-
+    
 h2 {
     color: #00d8f3;
 }

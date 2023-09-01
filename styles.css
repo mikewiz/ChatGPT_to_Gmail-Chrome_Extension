@@ -2,39 +2,39 @@ body {
   font-family: Roboto, sans-serif;
   font-weight: 400;
   font-size: 15.5px;
-  background-color: #fdf800;
-  color: black;
+  background-color: #343541;  /* Updated background color */
+  color: #ececdf;  /* Updated font color */
   text-shadow: none;
   padding: 10px 20px;
   border-radius: 15px;
 }
 
 .status {
-  color: #4caf50;
+  color: #ececdf;  /* Updated font color */
   font-weight: bold;
 }
 
 h2 {
-  color: #00d8f3;
+  color: #ececdf;  /* Updated font color */
   margin: 5px 0;
 }
 
 p {
-  color: #00d8f3;
+  color: #ececdf;  /* Updated font color */
   margin: 5px 0;
 }
 
 textarea {
-  background-color: #fdf800;
-  color: black;
+  background-color: #343541;
+  color: #ececdf;  /* Updated font color */
   padding: 5px;
   border-radius: 3px;
 }
 
 button {
   padding: 8px 15px;
-  background-color: #fdf800;
-  color: black;
+  background-color: #343541;
+  color: #ececdf;  /* Updated font color */
   border: none;
   cursor: pointer;
 }

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatGPT + Gmail Extension Status</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" id="themeStylesheet" href="styles.css">
 </head>
 
 <body>
@@ -13,19 +13,34 @@
     <h2>Extension Status:</h2>
     <p id="extensionStatus" class="status">Active</p>
 
-    <!-- Added section for displaying the obfuscated API key -->
     <h2>API Key:</h2>
     <p id="obfuscatedApiKey">sk-...XXXX</p>
 
     <h2>Last Email Processed:</h2>
-    <p id="lastEmail">None yet</p>
-
+    <textarea id="lastEmail" rows="4" cols="30">None yet</textarea>
+    
     <h2>Last GPT Response:</h2>
-    <p id="lastResponse">None yet</p>
+    <textarea id="lastResponse" rows="4" cols="30">None yet</textarea>    
 
     <h2>Prepend Text:</h2>
     <textarea id="prependText" rows="4" cols="30"></textarea>
     <button id="savePrependText">Save Prepend Text</button>
+
+    <!-- Theme Toggle Button -->
+    <button id="toggleTheme">Toggle Theme</button>
+
+    <!-- Refresh Button -->
+    <button id="refreshStatus">Refresh Status</button>
+
+    <!-- ChatGPT UI Section -->
+    <div id="chat-container">
+        <div id="messages">
+            <!-- Existing code -->
+        </div>
+        <div id="input-container">
+            <input type="text" placeholder="Type your message...">
+        </div>
+    </div>
 
     <script src="popup.js"></script>
 </body>

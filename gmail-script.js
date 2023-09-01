@@ -1,34 +1,50 @@
 console.log("Initializing gmail-script...");
 
-// Fetch the Gmail user's full name
+// Fetch the Gmail user's full name with retry mechanism
 function getGmailUserFullName() {
   console.log("Attempting to fetch Gmail user's full name...");
-  const nameElement = document.querySelector(
-    "div[aria-label*='Google Account: ']"
-  );
-  if (nameElement) {
-    console.log("Found Gmail user's full name element.");
-    return nameElement
-      .getAttribute("aria-label")
-      .replace("Google Account: ", "");
-  } else {
-    console.warn(
-      "Unable to find Gmail user full name. Gmail might have updated its UI."
-    );
-    // Send a message to the background script about the error
-    chrome.runtime.sendMessage({
-      type: "gmailUserNameError",
-      error: "Unable to fetch Gmail user's full name.",
-    });
-    return null;
-  }
+  
+  let retries = 5; // Number of retries
+  let retryInterval = 1000; // Retry every 1 second
+  
+  const attemptFetch = () => {
+    let nameElement = document.querySelector("div[aria-label*='Google Account: ']");
+
+    if (!nameElement) {
+      console.log("Name element not found. Trying an alternative selector...");
+      // Trying an alternative selector (this is just an example and might not work)
+      nameElement = document.querySelector("div[aria-label*='Account Information: ']");
+    }
+
+    // Check if the nameElement exists and is not empty
+    if (nameElement && nameElement.getAttribute("aria-label")) {
+      console.log("Found Gmail user's full name element.");
+      return nameElement.getAttribute("aria-label").replace("Google Account: ", "");
+    } else if (--retries > 0) {
+      console.log(`Retry attempt ${5 - retries} to fetch Gmail user's full name...`);
+      setTimeout(attemptFetch, retryInterval);
+    } else {
+      console.log("Warning: Unable to find Gmail user full name. Gmail might have updated its UI.");
+      // Send a message to the background script about the error
+      chrome.runtime.sendMessage({
+        type: "gmailUserNameError",
+        error: "Warning from gmail-script.js: Unable to fetch Gmail user's full name.",
+      });
+      return "Michael Flint";  // Return the default name "Michael Flint"
+    }
+  };
+
+  return attemptFetch();
 }
+
 
 const gmailUserFullName = getGmailUserFullName();
 console.log("Gmail user's full name: ", gmailUserFullName);
 
 // Declare signature
 let signature = "";
+
+console.log("Initializing gmail-script...");
 
 // Function to execute when the window is fully loaded
 window.onload = function () {
@@ -43,8 +59,12 @@ window.onload = function () {
       setupReplyButtonListenerIfNeeded();
     }
   }, 50);
+
   setTimeout(() => {
     console.log("Inbox check interval cleared after 4 seconds.");
+    if (!doesInboxAppearOnPage()) {
+      console.log("Inbox not found on page.");
+    }
     clearInterval(inboxCheckInterval);
   }, 4000);
 
@@ -62,7 +82,6 @@ window.onload = function () {
 };
 
 function doesInboxAppearOnPage() {
-  console.log("Checking if inbox appears on page...");
   const spans = document.querySelectorAll("span");
   for (const span of spans) {
     if (span.innerText === "Reply") {
@@ -70,7 +89,6 @@ function doesInboxAppearOnPage() {
       return true;
     }
   }
-  console.log("Inbox not found on page.");
   return false;
 }
 
@@ -107,11 +125,14 @@ function replyClickedFunction() {
       " at the end: \n" +
       emailContent;
     console.log("Email content formatted for GPT:  " + formattedEmailContent);
-
+	
+    // Modify the calling function to handle the callback
     const loadingIndicationInterval = setInterval(() => {
-      const numDots = countDotsInString(getGmailTextboxText());
-      const newDotsCount = numDots < 5 ? numDots + 1 : 0;
-      updateGmailTextboxText(`Loading${getStringWithNumDots(newDotsCount)}`);
+      getGmailTextboxText((textboxContent) => {
+        const numDots = countDotsInString(textboxContent);
+        const newDotsCount = numDots < 5 ? numDots + 1 : 0;
+        updateGmailTextboxText(`Loading${getStringWithNumDots(newDotsCount)}`);
+      });
     }, 200);
 
     chrome.runtime.sendMessage(
@@ -153,20 +174,29 @@ function getStringWithNumDots(n) {
 }
 
 function countDotsInString(str) {
+  if (!str) {
+    console.warn("Invalid string provided:", str);
+    return 0; // Return a default value
+  }
   console.log("Counting dots in string:", str);
   return str.split(".").length - 1;
 }
 
 function getGmailTextboxText() {
   console.log("Retrieving Gmail textbox content...");
-  const gmailTextbox = document.querySelector("[role=textbox]");
-  if (gmailTextbox) {
-    console.log("Gmail textbox content retrieved.");
-    return gmailTextbox.innerText;
-  } else {
-    console.error("Gmail textbox not found.");
-    return null;
-  }
+  let retries = 5;
+  let interval = setInterval(() => {
+    const gmailTextbox = document.querySelector("[role=textbox]");
+    if (gmailTextbox) {
+      console.log("Gmail textbox content retrieved.");
+      clearInterval(interval);
+      return gmailTextbox.innerText;
+    } else if (--retries <= 0) {
+      console.error("Gmail textbox not found after multiple attempts.");
+      clearInterval(interval);
+      return null;
+    }
+  }, 1000); // Check every second
 }
 
 function updateGmailTextboxText(newText) {
@@ -174,11 +204,17 @@ function updateGmailTextboxText(newText) {
   const gmailTextbox = document.querySelector("[role=textbox]");
   if (gmailTextbox) {
     // Check if the signature hasn't been captured yet and there is some content in the gmailTextbox
-    if (signature.length === 0 && gmailTextbox.innerText.trim().length !== 0) {
-      signature = gmailTextbox.innerText;
+    if (!signature && gmailTextbox.innerHTML.trim().length !== 0) {
+      signature = gmailTextbox.innerHTML;
       console.log("Signature captured:", signature);
     }
-    gmailTextbox.innerText = newText;
+    
+    // Append the signature to the new text if it's not null or empty
+    if (signature && signature.trim() !== "") {
+      newText += "\n\n" + signature;
+    }
+    
+    gmailTextbox.innerHTML = newText; // Use innerHTML to preserve formatting and images
     console.log("Gmail textbox content updated.");
   } else {
     console.error("Gmail textbox not found.");

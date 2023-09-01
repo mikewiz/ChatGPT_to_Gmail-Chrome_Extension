@@ -112,6 +112,7 @@ var tokenFetcher = (function () {
   };
 })();
 
+/*
 function getUserInfo(token) {
   const xhr = new XMLHttpRequest();
   xhr.open(
@@ -127,6 +128,18 @@ function getUserInfo(token) {
     }
   };
   xhr.send();
+}
+*/
+
+function getUserInfo(token) {
+  fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${token}`)
+    .then(response => response.json())
+    .then(user => {
+      console.log("User Info:", user);
+    })
+    .catch(error => {
+      console.error("Error fetching user info:", error);
+    });
 }
 
 chrome.identity.getAuthToken({ interactive: true }, function (token) {
